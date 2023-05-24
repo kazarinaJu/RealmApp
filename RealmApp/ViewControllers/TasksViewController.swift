@@ -16,7 +16,7 @@ final class TasksViewController: UITableViewController {
     private var currentTasks: Results<Task>!
     private var completedTasks: Results<Task>!
     private let storageManager = StorageManager.shared
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = taskList.title
@@ -58,7 +58,7 @@ final class TasksViewController: UITableViewController {
     // MARK: - UITableViewDelegate
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let task = indexPath.section == 0 ? currentTasks[indexPath.row]: completedTasks[indexPath.row]
-        let title = indexPath.section == 0 ? "Done": "Undone"
+        let buttonTitle = indexPath.section == 0 ? "Done": "Undone"
         
         
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
@@ -72,8 +72,8 @@ final class TasksViewController: UITableViewController {
             }
             isDone(true)
         }
-
-        let doneAction = UIContextualAction(style: .normal, title: title) { [unowned self] _, _, isDone in
+        
+        let doneAction = UIContextualAction(style: .normal, title: buttonTitle) { [unowned self] _, _, isDone in
             storageManager.done(task)
             tableView.reloadSections(IndexSet(integersIn: 0...1), with: .automatic)
             isDone(true)
@@ -89,7 +89,7 @@ final class TasksViewController: UITableViewController {
     @objc private func addButtonPressed() {
         showAlert()
     }
-
+    
 }
 
 extension TasksViewController {
