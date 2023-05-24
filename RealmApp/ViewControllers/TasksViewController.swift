@@ -55,6 +55,37 @@ final class TasksViewController: UITableViewController {
         return cell
     }
     
+    // MARK: - UITableViewDelegate
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let task = indexPath.section == 0 ? currentTasks[indexPath.row]: completedTasks[indexPath.row]
+        let title = indexPath.section == 0 ? "Done": "Undone"
+        
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
+            storageManager.delete(task)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { [unowned self] _, _, isDone in
+            showAlert(with: task) {
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            isDone(true)
+        }
+
+        let doneAction = UIContextualAction(style: .normal, title: title) { [unowned self] _, _, isDone in
+            storageManager.done(task)
+            tableView.reloadSections(IndexSet(integersIn: 0...1), with: .automatic)
+            isDone(true)
+        }
+        
+        
+        editAction.backgroundColor = .orange
+        doneAction.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        
+        return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
+    }
+    
     @objc private func addButtonPressed() {
         showAlert()
     }
@@ -75,7 +106,8 @@ extension TasksViewController {
                 style: .default
             ) { [weak self] taskTitle, taskNote in
                 if let task, let completion {
-                    // TODO: - edit task
+                    self?.storageManager.edit(task, newTitle: taskTitle, newNote: taskNote)
+                    completion()
                     return
                 }
                 self?.save(task: taskTitle, withNote: taskNote)
